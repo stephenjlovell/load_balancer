@@ -3,8 +3,6 @@ package main
 import (
 	"container/heap"
 	"fmt"
-	// "time"
-	// "math/rand"
 )
 
 type Balancer struct {
@@ -37,7 +35,6 @@ func (b *Balancer) balance(work chan Request) {
 // route the request to the most lightly loaded worker in the priority queue.
 
 func (b *Balancer) dispatch(req Request) {
-	// fmt.Printf("X")
 	w := heap.Pop(&b.pool).(*Worker)
 	w.requests <- req
 	w.pending++
@@ -48,7 +45,6 @@ func (b *Balancer) completed(w *Worker) {
 	w.pending--
 	heap.Remove(&b.pool, w.index)
 	heap.Push(&b.pool, w)
-	// fmt.Printf("O")
 }
 
 func (b *Balancer) print() {
