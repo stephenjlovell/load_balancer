@@ -3,7 +3,7 @@ package main
 
 type Pool []*Worker // a heap implemented as a priority queue of pointers to worker objects.
 
-// satisfy the Heap interface...
+// satisfy the container#heap interface...
 
 func (p Pool) Len() int { return len(p) }
 

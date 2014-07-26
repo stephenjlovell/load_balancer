@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
-	// "runtime"
+	"runtime"
 )
 
-var counter, other_counter int
+var counter int
 
 type Request struct {
 	fn func() int // operation to perform
@@ -16,13 +16,10 @@ type Request struct {
 
 func requester(work chan Request) {
 	c := make(chan int, 100)
-	// fmt.Printf("R.")
 	go func() {
 		for {
 			time.Sleep(time.Microsecond * time.Duration(rand.Int63n(10))) // simulate uneven throughput
-
 			work <- Request{do_some_work, c} // send a work request
-			// fmt.Println("R: work requested.")
 			result := <-c // wait for answer
 			do_something_else(result)
 		}
@@ -36,14 +33,17 @@ func do_some_work() int {
 }
 
 func do_something_else(r int) {
-	other_counter++
 	// do very important work.
 }
 
 func main() {
-	// runtime.GOMAXPROCS(runtime.NumCPU())
+	procs := runtime.NumCPU()
+	runtime.GOMAXPROCS(procs)
+	fmt.Printf("\nRunning on %d processors.\n", procs)
+	nworkers := procs-2
+
 	rand.Seed(8)
-	nworkers := 8
+
 	work := make(chan Request, 100)
 
 	balancer := new_balancer(nworkers, work)
@@ -55,11 +55,11 @@ func main() {
 	}
 
 	go func() {
-		for _ = range time.Tick(250 * time.Millisecond) {
-			balancer.print()
+		for _ = range time.Tick(250 * time.Millisecond) {  
+			balancer.print()  // periodically print out the number of pending tasks assigned to each worker.
 		}
 	}()
 
 	time.Sleep(10 * time.Second)
-	fmt.Printf("\n %d/%d jobs complete.\n", counter, other_counter)
+	fmt.Printf("\n %d jobs complete.\n", counter)
 }
